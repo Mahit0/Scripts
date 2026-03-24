@@ -1,343 +1,248 @@
 Import-Module ActiveDirectory
-$name = Read-Host -Prompt "Prénom"
-$nomfamille = Read-Host -Prompt "Nom de famille"
-$username = $name.Substring(0,1) + $nomfamille
 
-if (Get-ADUser -Filter {SamAccountName -eq $username}) {
-    Write-Warning "L'identifiant $username existe déjà dans l'AD, boloss va"
-} else {
-    $password = Read-Host -Prompt "Mot de passe" -AsSecureString
+$domain = Get-ADDomain
+$baseDN = $domain.DistinguishedName
 
-    $continue = $true
-    while ($continue) {
-        Write-Host "--------------Choix de l'agence--------------" -ForegroundColor Red
-        Write-Host "1. Nantes" -ForegroundColor Red
-        Write-Host "2. Vertou" -ForegroundColor Red
-        Write-Host "3. Rennes" -ForegroundColor Red
-        Write-Host "x. exit" -ForegroundColor Red
-        Write-Host "---------------------------------------------" -ForegroundColor Red
-        $choix1 = Read-Host "Faites un choix :"
-        switch ($choix1) {
-            1 {
-                while ($continue) {
-                    Write-Host "--------------Choix du poste--------------" -ForegroundColor Gray
-                    Write-Host "1. Salarié" -ForegroundColor Gray
-                    Write-Host "2. Secrétaire" -ForegroundColor Gray
-                    Write-Host "x. exit" -ForegroundColor Gray
-                    Write-Host "------------------------------------------" -ForegroundColor Gray
-                    $choix2 = Read-Host "Faites un choix"
-                    switch ($choix2) {
-                        1 {
-                            $targetOU = "OU=Salariés,OU=Utilisateurs,OU=Informatique,OU=Nantes,OU=Agence,OU=_TP4,DC=Matteo,DC=lcl"
-                            $groupName = "NTS_GG_Informatique"
-                            # Création de l'utilisateur
-                                        $user = New-ADUser -Name $username `
-                                            -DisplayName $username `
-                                            -GivenName $name `
-                                            -Surname $nomfamille `
-                                            -SamAccountName $username `
-                                            -AccountPassword $password `
-                                            -ChangePasswordAtLogon $true `
-                                            -Enable $true `
-                                            -PassThru
-
-                                        # Déplacement et ajout aux groupes
-                                        Move-ADObject -Identity $user.DistinguishedName -TargetPath $targetOU
-                                        Add-ADGroupMember -Identity $groupName -Members $user.SamAccountName
-                                        Add-ADGroupMember -Identity $groupName2 -Members $user.SamAccountName
-
-                                        Write-Host "Création de l'utilisateur pour $name $nomfamille : $username" -ForegroundColor Cyan
-                                        $continue = $false
-                            
-                        }
-                        2 {
-                            $targetOU = "OU=Secrétaires,OU=Utilisateurs,OU=Informatique,OU=Nantes,OU=Agence,OU=_TP4,DC=Matteo,DC=lcl"
-                            $groupName = "NTS_GG_Secretaire"
-                            # Création de l'utilisateur
-                                        $user = New-ADUser -Name $username `
-                                            -DisplayName $username `
-                                            -GivenName $name `
-                                            -Surname $nomfamille `
-                                            -SamAccountName $username `
-                                            -AccountPassword $password `
-                                            -ChangePasswordAtLogon $true `
-                                            -Enable $true `
-                                            -PassThru
-
-                                        # Déplacement et ajout aux groupes
-                                        Move-ADObject -Identity $user.DistinguishedName -TargetPath $targetOU
-                                        Add-ADGroupMember -Identity $groupName -Members $user.SamAccountName
-                                        Add-ADGroupMember -Identity $groupName2 -Members $user.SamAccountName
-
-                                        Write-Host "Création de l'utilisateur pour $name $nomfamille : $username" -ForegroundColor Cyan
-                                        $continue = $false
-                        }
-                        'x' {
-                            $continue = $false
-                            break
-                        }
-                        default {
-                            Write-Host "Choix invalide" -ForegroundColor Red
-                            continue
-                        }
-                    }
-
-                    
-                }
-            }
-            2 {
-                while ($continue) {
-                    Write-Host "--------------Choix du poste--------------" -ForegroundColor Gray
-                    Write-Host "1. Salarié" -ForegroundColor Gray
-                    Write-Host "2. Intérimaire" -ForegroundColor Gray
-                    Write-Host "x. exit" -ForegroundColor Gray
-                    Write-Host "------------------------------------------" -ForegroundColor Gray
-                    $choix3 = Read-Host "Faites un choix"
-                    switch ($choix3) {
-                        1 {
-                            while ($continue) {
-                                Write-Host "--------------Choix des horaires--------------" -ForegroundColor Green
-                                Write-Host "1. 6h - 13h" -ForegroundColor Green
-                                Write-Host "2. 13h - 21h" -ForegroundColor Green
-                                Write-Host "x. exit" -ForegroundColor Green
-                                Write-Host "-----------------------------------------------" -ForegroundColor Green
-                                $choix4 = Read-Host "Faites un choix"
-                                switch ($choix4) {
-                                    1 {
-                                        $targetOU = "OU=Matin,OU=Salariés,OU=Utilisateurs,OU=Production,OU=Vertou,OU=Agence,OU=_TP4,DC=Matteo,DC=lcl"
-                                        $groupName = "VRT_GG_Prod_Matin"
-                                        $groupName2 = "VRT_GG_Production"
-                                        # Création de l'utilisateur
-                                        $user = New-ADUser -Name $username `
-                                            -DisplayName $username `
-                                            -GivenName $name `
-                                            -Surname $nomfamille `
-                                            -SamAccountName $username `
-                                            -AccountPassword $password `
-                                            -ChangePasswordAtLogon $true `
-                                            -Enable $true `
-                                            -PassThru
-
-                                        # Déplacement et ajout aux groupes
-                                        Move-ADObject -Identity $user.DistinguishedName -TargetPath $targetOU
-                                        Add-ADGroupMember -Identity $groupName -Members $user.SamAccountName
-                                        Add-ADGroupMember -Identity $groupName2 -Members $user.SamAccountName
-
-                                        Write-Host "Création de l'utilisateur pour $name $nomfamille : $username" -ForegroundColor Cyan
-                                        $continue = $false
-                                    }
-                                    2 {
-                                        $targetOU = "OU=Après-Midi,OU=Salariés,OU=Utilisateurs,OU=Production,OU=Vertou,OU=Agence,OU=_TP4,DC=Matteo,DC=lcl"
-                                        $groupName = "VRT_GG_Prod_Aprem"
-                                        $groupName2 = "VRT_GG_Production"
-                                        # Création de l'utilisateur
-                                        $user = New-ADUser -Name $username `
-                                            -DisplayName $username `
-                                            -GivenName $name `
-                                            -Surname $nomfamille `
-                                            -SamAccountName $username `
-                                            -AccountPassword $password `
-                                            -ChangePasswordAtLogon $true `
-                                            -Enable $true `
-                                            -PassThru
-
-                                        # Déplacement et ajout aux groupes
-                                        Move-ADObject -Identity $user.DistinguishedName -TargetPath $targetOU
-                                        Add-ADGroupMember -Identity $groupName -Members $user.SamAccountName
-                                        Add-ADGroupMember -Identity $groupName2 -Members $user.SamAccountName
-
-                                        Write-Host "Création de l'utilisateur pour $name $nomfamille : $username" -ForegroundColor Cyan
-                                $continue = $false
-                                    }
-                                    'x' {
-                                        $continue = $false
-                                        break
-                                    }
-                                    default {
-                                        Write-Host "Choix invalide" -ForegroundColor Red
-                                        continue
-                                    }
-                                }
-
-                               
-                            }
-                        }
-                        2 {
-                            while ($continue) {
-                                Write-Host "--------------Choix des horaires--------------" -ForegroundColor Green
-                                Write-Host "1. 6h - 13h" -ForegroundColor Green
-                                Write-Host "2. 13h - 21h" -ForegroundColor Green
-                                Write-Host "x. exit" -ForegroundColor Green
-                                Write-Host "-----------------------------------------------" -ForegroundColor Green
-                                $choix5 = Read-Host "Faites un choix"
-                                switch ($choix5) {
-                                    1 {
-                                        $targetOU = "OU=Matin,OU=Intérimaires,OU=Utilisateurs,OU=Production,OU=Vertou,OU=Agence,OU=_TP4,DC=Matteo,DC=lcl"
-                                        $groupName = "VRT_GG_Prod_Matin"
-                                        $groupName2 = "VRT_GG_Production"
-                                        # Création de l'utilisateur
-                                        $user = New-ADUser -Name $username `
-                                            -DisplayName $username `
-                                            -GivenName $name `
-                                            -Surname $nomfamille `
-                                            -SamAccountName $username `
-                                            -AccountPassword $password `
-                                            -ChangePasswordAtLogon $true `
-                                            -Enable $true `
-                                            -PassThru
-
-                                        # Déplacement et ajout aux groupes
-                                        Move-ADObject -Identity $user.DistinguishedName -TargetPath $targetOU
-                                        Add-ADGroupMember -Identity $groupName -Members $user.SamAccountName
-                                        Add-ADGroupMember -Identity $groupName2 -Members $user.SamAccountName
-
-                                        Write-Host "Création de l'utilisateur pour $name $nomfamille : $username" -ForegroundColor Cyan
-                                        $continue = $false
-                                    }
-                                    2 {
-                                        $targetOU = "OU=Après-Midi,OU=Intérimaires,OU=Utilisateurs,OU=Production,OU=Vertou,OU=Agence,OU=_TP4,DC=Matteo,DC=lcl"
-                                        $groupName = "VRT_GG_Prod_Aprem"
-                                        $groupName2 = "VRT_GG_Production"
-                                        # Création de l'utilisateur
-                                        $user = New-ADUser -Name $username `
-                                            -DisplayName $username `
-                                            -GivenName $name `
-                                            -Surname $nomfamille `
-                                            -SamAccountName $username `
-                                            -AccountPassword $password `
-                                            -ChangePasswordAtLogon $true `
-                                            -Enable $true `
-                                            -PassThru
-
-                                        # Déplacement et ajout aux groupes
-                                        Move-ADObject -Identity $user.DistinguishedName -TargetPath $targetOU
-                                        Add-ADGroupMember -Identity $groupName -Members $user.SamAccountName
-                                        Add-ADGroupMember -Identity $groupName2 -Members $user.SamAccountName
-
-                                        Write-Host "Création de l'utilisateur pour $name $nomfamille : $username" -ForegroundColor Cyan
-                                         $continue = $false
-                                    }
-                                    'x' {
-                                        $continue = $false
-                                        break
-                                    }
-                                    default {
-                                        Write-Host "Choix invalide" -ForegroundColor Red
-                                        continue
-                                    }
-                                }
-
-                                
-                            }
-                        }
-                        'x' {
-                            $continue = $false
-                            break
-                        }
-                        default {
-                            Write-Host "Choix invalide" -ForegroundColor Red
-                        }
-                    }
-                }
-            }
-            3 {
-                while ($continue) {
-                    Write-Host "--------------Choix du poste--------------" -ForegroundColor Gray
-                    Write-Host "1. Salarié" -ForegroundColor Gray
-                    Write-Host "2. Intérimaire" -ForegroundColor Gray
-                    Write-Host "3. Secrétaires" -ForegroundColor Gray
-                    Write-Host "x. exit" -ForegroundColor Gray
-                    Write-Host "------------------------------------------" -ForegroundColor Gray
-                    $choix6 = Read-Host "Faites un choix :"
-                    switch ($choix6) {
-                        1 {
-                            $targetOU = "OU=Salariés,OU=Utilisateurs,OU=Informatique,OU=Rennes,OU=Agence,OU=_TP4,DC=Matteo,DC=lcl"
-                            $groupName = "REN_GG_Informatique"
-                            $user = New-ADUser -Name $username `
-                                -DisplayName $username `
-                                -GivenName $name `
-                                -Surname $nomfamille `
-                                -SamAccountName $username `
-                                -AccountPassword $password `
-                                -ChangePasswordAtLogon $true `
-                                -Enable $true `
-                                -PassThru
-
-                            # Ajout de l'utilisateur au groupe
-                            Add-ADGroupMember -Identity $groupName -Members $user.SamAccountName
-
-                            # Déplacement de l'utilisateur dans l'OU appropriée
-                            Move-ADObject -Identity $user.DistinguishedName -TargetPath $targetOU
-
-                            Write-Host "Création de l'utilisateur pour $name $nomfamille : $username" -ForegroundColor Cyan
-                            $continue = $false
-                        }
-                        }
-                        2 {
-                            $targetOU = "OU=Intérimaires,OU=Utilisateurs,OU=Informatique,OU=Rennes,OU=Agence,OU=_TP4,DC=Matteo,DC=lcl"
-                            $groupName = "REN_GG_Interimaires"
-                            $user = New-ADUser -Name $username `
-                                -DisplayName $username `
-                                -GivenName $name `
-                                -Surname $nomfamille `
-                                -SamAccountName $username `
-                                -AccountPassword $password `
-                                -ChangePasswordAtLogon $true `
-                                -Enable $true `
-                                -PassThru
-
-                            # Ajout de l'utilisateur au groupe
-                            Add-ADGroupMember -Identity $groupName -Members $user.SamAccountName
-
-                            # Déplacement de l'utilisateur dans l'OU appropriée
-                            Move-ADObject -Identity $user.DistinguishedName -TargetPath $targetOU
-
-                            Write-Host "Création de l'utilisateur pour $name $nomfamille : $username" -ForegroundColor Cyan
-                            $continue = $false
-                        }
-                        }
-                        3  {
-                            $targetOU = "OU=Secrétaires,OU=Utilisateurs,OU=Informatique,OU=Rennes,OU=Agence,OU=_TP4,DC=Matteo,DC=lcl"
-                            $groupName = "REN_GG_Secretaire" 
-                            $user = New-ADUser -Name $username `
-                                -DisplayName $username `
-                                -GivenName $name `
-                                -Surname $nomfamille `
-                                -SamAccountName $username `
-                                -AccountPassword $password `
-                                -ChangePasswordAtLogon $true `
-                                -Enable $true `
-                                -PassThru
-
-                             # Ajout de l'utilisateur au groupe
-                            Add-ADGroupMember -Identity $groupName -Members $user.SamAccountName
-
-                            # Déplacement de l'utilisateur dans l'OU appropriée
-                            Move-ADObject -Identity $user.DistinguishedName -TargetPath $targetOU
-
-                            Write-Host "Création de l'utilisateur pour $name $nomfamille : $username" -ForegroundColor Cyan
-                            $continue = $false
-                            }
-                        }
-                        'x' {
-                            $continue = $false
-                            break
-                        }
-                        default {
-                            Write-Host "Choix invalide" -ForegroundColor Red
-                            continue
-                        }
-                    }
-
-                    
-                }
-            }
-            'x' {
-                $continue = $false
-            }
-            default {
-                Write-Host "Choix invalide" -ForegroundColor Red
-            }
+# NOUVEAU : supprime les accents pour le SamAccountName
+function Remove-Accents {
+    param([string]$str)
+    $normalized = $str.Normalize([System.Text.NormalizationForm]::FormD)
+    $sb = [System.Text.StringBuilder]::new()
+    foreach ($c in $normalized.ToCharArray()) {
+        $cat = [System.Globalization.CharUnicodeInfo]::GetUnicodeCategory($c)
+        if ($cat -ne [System.Globalization.UnicodeCategory]::NonSpacingMark) {
+            [void]$sb.Append($c)
         }
     }
+    return $sb.ToString()
 }
+
+function CreaUser {
+    $script:name       = Read-Host -Prompt "Prenom"
+    $script:nomfamille = Read-Host -Prompt "Nom de famille"
+    # FIXE : on passe par Remove-Accents avant de construire le username
+    $script:username   = (Remove-Accents $script:name).Substring(0,1).ToLower() + (Remove-Accents $script:nomfamille).ToLower()
+    $script:password   = "Pa$$w0rd"
+}
+
+function New-UtilisateurAD {
+    param(
+        [string]$TargetOU,
+        [string]$GroupName
+    )
+
+    CreaUser
+
+    try {
+        Get-ADGroup -Identity $GroupName | Out-Null
+    } catch {
+        Write-Host "ERREUR : le groupe '$GroupName' n'existe pas. Cree-le d'abord." -ForegroundColor Red
+        return
+    }
+
+    $user = New-ADUser `
+        -Name                  "$($script:name) $($script:nomfamille)" `
+        -DisplayName           "$($script:name) $($script:nomfamille)" `
+        -GivenName             $script:name `
+        -Surname               $script:nomfamille `
+        -SamAccountName        $script:username `
+        -AccountPassword       $script:password `
+        -ChangePasswordAtLogon $true `
+        -Enabled               $true `
+        -Path                  $TargetOU `
+        -PassThru
+
+    Add-ADGroupMember -Identity $GroupName -Members $user.SamAccountName
+
+    Write-Host "Utilisateur $($script:name) $($script:nomfamille) ($($script:username)) cree." -ForegroundColor Cyan
+}
+
+do {
+    Write-Host "=================== Menu principal ==================="
+    Write-Host "1 - Creation d'OU"
+    Write-Host "2 - Creation d'utilisateur"
+    Write-Host "x - Quitter"
+    Write-Host "======================================================"
+    $choix = Read-Host "Ton choix"
+
+    switch ($choix) {
+
+        "1" {
+            do {
+                Write-Host "=================== Menu des OU ==================="
+                Write-Host "1 - Creer toute la structure d'un coup"
+                Write-Host "2 - Creer une OU Niveau 1 (Usine / Service)"
+                Write-Host "3 - Creer une OU Niveau 2 (Type d'objet)"
+                Write-Host "4 - Creer une OU Niveau 3 (Service utilisateurs)"
+                Write-Host "x - Retour"
+                Write-Host "==================================================="
+                $choixOU = Read-Host "Ton choix"
+
+                switch ($choixOU) {
+                    "1" {
+                        foreach ($aff in @("Usine", "Service")) {
+                            New-ADOrganizationalUnit -Name $aff -Path $baseDN -ErrorAction SilentlyContinue
+                            foreach ($type in @("Utilisateurs", "Groupes", "Stations de travail", "Serveurs")) {
+                                New-ADOrganizationalUnit -Name $type -Path "OU=$aff,$baseDN" -ErrorAction SilentlyContinue
+                                if ($type -eq "Utilisateurs") {
+                                    foreach ($svc in @("Production", "Comptabilite", "Commercial", "Ressources Humaines", "Informatique", "Direction")) {
+                                        New-ADOrganizationalUnit -Name $svc -Path "OU=Utilisateurs,OU=$aff,$baseDN" -ErrorAction SilentlyContinue
+                                    }
+                                }
+                            }
+                        }
+                        Write-Host "Structure complete creee !" -ForegroundColor Green
+                    }
+
+                    "2" {
+                        Write-Host "1 - Usine"
+                        Write-Host "2 - Service"
+                        $c = Read-Host "Ton choix"
+                        if ($c -eq "1") { $aff = "Usine" } else { $aff = "Service" }
+                        New-ADOrganizationalUnit -Name $aff -Path $baseDN -ErrorAction SilentlyContinue
+                        Write-Host "OU '$aff' creee." -ForegroundColor Green
+                    }
+
+                    "3" {
+                        Write-Host "1 - Usine"
+                        Write-Host "2 - Service"
+                        $c = Read-Host "Dans quelle affectation"
+                        if ($c -eq "1") { $aff = "Usine" } else { $aff = "Service" }
+
+                        Write-Host "1 - Utilisateurs"
+                        Write-Host "2 - Groupes"
+                        Write-Host "3 - Stations de travail"
+                        Write-Host "4 - Serveurs"
+                        $c = Read-Host "Quel type"
+                        switch ($c) {
+                            "1" { $type = "Utilisateurs" }
+                            "2" { $type = "Groupes" }
+                            "3" { $type = "Stations de travail" }
+                            "4" { $type = "Serveurs" }
+                            # FIXE : default manquant, on skippe si valeur invalide
+                            default {
+                                Write-Host "Choix invalide." -ForegroundColor Red
+                                $type = $null
+                            }
+                        }
+                        if ($type) {
+                            New-ADOrganizationalUnit -Name $type -Path "OU=$aff,$baseDN" -ErrorAction SilentlyContinue
+                            Write-Host "OU '$type' creee sous '$aff'." -ForegroundColor Green
+                        }
+                    }
+
+                    "4" {
+                        Write-Host "1 - Usine"
+                        Write-Host "2 - Service"
+                        $c = Read-Host "Dans quelle affectation"
+                        if ($c -eq "1") { $aff = "Usine" } else { $aff = "Service" }
+
+                        Write-Host "1 - Production"
+                        Write-Host "2 - Comptabilite"
+                        Write-Host "3 - Commercial"
+                        Write-Host "4 - Ressources Humaines"
+                        Write-Host "5 - Informatique"
+                        Write-Host "6 - Direction"
+                        $c = Read-Host "Quel service"
+                        switch ($c) {
+                            "1" { $svc = "Production" }
+                            "2" { $svc = "Comptabilite" }
+                            "3" { $svc = "Commercial" }
+                            "4" { $svc = "Ressources Humaines" }
+                            "5" { $svc = "Informatique" }
+                            "6" { $svc = "Direction" }
+                            # FIXE : idem, default manquant
+                            default {
+                                Write-Host "Choix invalide." -ForegroundColor Red
+                                $svc = $null
+                            }
+                        }
+                        if ($svc) {
+                            New-ADOrganizationalUnit -Name $svc -Path "OU=Utilisateurs,OU=$aff,$baseDN" -ErrorAction SilentlyContinue
+                            Write-Host "OU '$svc' creee sous 'Utilisateurs > $aff'." -ForegroundColor Green
+                        }
+                    }
+                }
+
+            } while ($choixOU -ne "x")
+        }
+
+        "2" {
+            do {
+                Clear-Host
+                Write-Host "=================== Crea user - Batiment ==================="
+                Write-Host "1 - Service"
+                Write-Host "2 - Usine"
+                Write-Host "x - Retour"
+                Write-Host "============================================================"
+                $choixBat = Read-Host "Dans quel batiment est l'utilisateur"
+
+                switch ($choixBat) {
+
+                    "1" {
+                        do {
+                            Clear-Host
+                            Write-Host "=================== Crea user - Service - Fonction ==================="
+                            Write-Host "1 - Production"
+                            Write-Host "2 - Comptabilite"
+                            Write-Host "3 - Commercial"
+                            Write-Host "4 - Ressources Humaines"
+                            Write-Host "5 - Informatique"
+                            Write-Host "6 - Direction"
+                            Write-Host "x - Retour"
+                            Write-Host "======================================================================"
+                            $choixFonction = Read-Host "Quel est la fonction de l'utilisateur"
+
+                            switch ($choixFonction) {
+                                "1" { New-UtilisateurAD -TargetOU "OU=Production,OU=Utilisateurs,OU=Service,$baseDN"          -GroupName "GG_Production" }
+                                "2" { New-UtilisateurAD -TargetOU "OU=Comptabilite,OU=Utilisateurs,OU=Service,$baseDN"        -GroupName "GG_Compta" }
+                                "3" { New-UtilisateurAD -TargetOU "OU=Commercial,OU=Utilisateurs,OU=Service,$baseDN"          -GroupName "GG_Commercial" }
+                                "4" { New-UtilisateurAD -TargetOU "OU=Ressources Humaines,OU=Utilisateurs,OU=Service,$baseDN" -GroupName "GG_RH" }
+                                "5" { New-UtilisateurAD -TargetOU "OU=Informatique,OU=Utilisateurs,OU=Service,$baseDN"        -GroupName "GG_Informatique" }
+                                "6" { New-UtilisateurAD -TargetOU "OU=Direction,OU=Utilisateurs,OU=Service,$baseDN"           -GroupName "GG_Direction" }
+                                "x" { Write-Host "Retour..." }
+                                default { Write-Host "Entre une bonne option salopio !" -ForegroundColor Red }
+                            }
+
+                        } while ($choixFonction -ne "x")
+                    }
+
+                    "2" {
+                        do {
+                            Clear-Host
+                            Write-Host "=================== Crea user - Usine - Fonction ==================="
+                            Write-Host "1 - Production"
+                            Write-Host "2 - Comptabilite"
+                            Write-Host "3 - Commercial"
+                            Write-Host "4 - Ressources Humaines"
+                            Write-Host "5 - Informatique"
+                            Write-Host "6 - Direction"
+                            Write-Host "x - Retour"
+                            Write-Host "===================================================================="
+                            $choixFonction = Read-Host "Quel est la fonction de l'utilisateur"
+
+                            switch ($choixFonction) {
+                                "1" { New-UtilisateurAD -TargetOU "OU=Production,OU=Utilisateurs,OU=Usine,$baseDN"          -GroupName "GG_Production" }
+                                "2" { New-UtilisateurAD -TargetOU "OU=Comptabilite,OU=Utilisateurs,OU=Usine,$baseDN"        -GroupName "GG_Compta" }
+                                "3" { New-UtilisateurAD -TargetOU "OU=Commercial,OU=Utilisateurs,OU=Usine,$baseDN"          -GroupName "GG_Commercial" }
+                                "4" { New-UtilisateurAD -TargetOU "OU=Ressources Humaines,OU=Utilisateurs,OU=Usine,$baseDN" -GroupName "GG_RH" }
+                                "5" { New-UtilisateurAD -TargetOU "OU=Informatique,OU=Utilisateurs,OU=Usine,$baseDN"        -GroupName "GG_Informatique" }
+                                "6" { New-UtilisateurAD -TargetOU "OU=Direction,OU=Utilisateurs,OU=Usine,$baseDN"           -GroupName "GG_Direction" }
+                                "x" { Write-Host "Retour..." }
+                                default { Write-Host "Entre une bonne option salopio !" -ForegroundColor Red }
+                            }
+
+                        } while ($choixFonction -ne "x")
+                    }
+
+                    "x" { Write-Host "Retour au menu principal." }
+                    default { Write-Host "Entre une bonne option salopio !" -ForegroundColor Red }
+                }
+
+            } while ($choixBat -ne "x")
+        }
+    }
+
+} while ($choix -ne "x")
+
+Write-Host "Au revoir !" -ForegroundColor Yellow
