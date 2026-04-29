@@ -38,21 +38,14 @@ cat "$crea_user_file" | while read -r user home shell || [ -n "$user" ]; do
     else
         final_shell="$shell"
     fi
-
-    if id "$user" >/dev/null 2>&1; then
-        log "L'utilisateur $user existe déjà." >> "$log_file"
+    useradd -m -d "$home" -s "$final_shell" "$user" >/dev/null 2>&1
+    if [ $? -eq 0 ]; then
+        log "Succès : $user ($home, $final_shell)"
+        OK=$((OK + 1))
+    else
+        log "Échec : $user" >> "$log_file"
         echo "$user $home $shell" >> "$tmp_fails"
         KO=$((KO + 1))
-    else
-        useradd -m -d "$home" -s "$final_shell" "$user" >/dev/null 2>&1
-        if [ $? -eq 0 ]; then
-            log "Succès : $user ($home, $final_shell)"
-            OK=$((OK + 1))
-        else
-            log "Échec : $user" >> "$log_file"
-            echo "$user $home $shell" >> "$tmp_fails"
-            KO=$((KO + 1))
-        fi
     fi
 done
 
