@@ -37,23 +37,15 @@ tmp_fails=$(mktemp)
 while read -r username; do
     # On skip les lignes vides au cas où
     [[ -z "$username" ]] && continue
-
-    # On check si l'user existe déjà
-    if id "$username" &>/dev/null; then
-        log "L'utilisateur $username existe déjà." >> "${log_file}"
+    # Tentative de création
+    useradd "$username" &>/dev/null
+    if [[ $? -eq 0 ]]; then
+        log "Succès : $username a été créé."
+        ((OK++))
+    else
+        log "Échec : Impossible de créer $username." >> "${log_file}"
         echo "$username" >> "$tmp_fails"
         ((KO++))
-    else
-        # Tentative de création
-        useradd "$username" &>/dev/null
-        if [[ $? -eq 0 ]]; then
-            log "Succès : $username a été créé."
-            ((OK++))
-        else
-            log "Échec : Impossible de créer $username." >> "${log_file}"
-            echo "$username" >> "$tmp_fails"
-            ((KO++))
-        fi
     fi
 done 
 
