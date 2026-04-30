@@ -27,24 +27,20 @@ fi
 
 # On cree la fonction du tas 
 function func_tas_victime {
-    # On compte combien on a de victimes au total
     nb_victime=$(cat ${liste} | wc -l)
     
-    # On check si tout le monde est passe ou non 
     nb_deja_tas=$(cat ${file_vic_tas} | wc -l)
     if [[ ${nb_deja_tas} -ge ${nb_victime} ]]; then
-        echo "Désolé poto, tout le monde est déjà passé à la casserole ! (Option 2 pour reset)"
+        echo "Deso poto, tout le monde est deja passe à la casserole ! (Option 2 pour reset)"
         return
     fi
 
     victime_name=""
-    # On boucle JUSQU'À CE QUE victime_name ne soit plus vide ET ne soit plus dans le fichier
     until [[ -n "${victime_name}" ]] && ! grep -qx "${victime_name}" "${file_vic_tas}"; do
         victime_line=$(shuf -i 1-${nb_victime} -n 1)
         victime_name=$(sed -n "${victime_line}p" "${liste}")
     done
 
-    # Une fois qu'on a un vrai nouveau gagnant
     echo "Et le grand gagnant est : ${victime_name}" 
     echo "${victime_name}" >> "${file_vic_tas}" 
 }
