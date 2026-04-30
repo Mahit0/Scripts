@@ -22,7 +22,7 @@ if [[ ! -f ${file_vic_tas} ]] ; then
     touch ${file_vic_tas}
 else
     # Si existe on s'assure qu'il est vide
-    > ${file_vic_tas}
+    > ${file_vic_tas} 
 fi
 
 # On cree la fonction du tas 
