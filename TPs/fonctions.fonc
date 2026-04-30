@@ -1,0 +1,59 @@
+#!/bin/bash
+
+#################################
+# Author : Ottema05             #
+# File : fonctions.fonc         #  
+# Edit : 30/04/2026             #
+# Last commit by : Ottema05     #
+#################################
+
+# On cree notre espace de travail 
+fic_tmp=/tmp/fic_tmp.$$
+if [[ ! -f ${fic_tmp} ]] ; then 
+    touch ${fic_tmp}
+else
+    > ${fic_tmp}
+fi
+
+# On def nos variables globales 
+path=$(pwd)
+Rouge='\033[0;31m'
+Vert='\033[0;32m'
+NC='\033[0m'
+
+# On fait notre fonction qui cree les save
+function save_shell {
+    ls "${path}" | grep ".sh$" > "${fic_tmp}"
+    while [[ -s "${fic_tmp}" ]] ; do 
+        name=$(tail -n1 "${fic_tmp}")
+        name_without_sh="${name%.sh}"
+        cp "${path}/${name}" "${path}/${name_without_sh}.save"
+        echo "${name} a bien été sauvegardé !"
+        sed -i '$d' "${fic_tmp}"
+    done
+}
+
+function suppr_save {
+    ls "${path}" | grep ".save$" > "${fic_tmp}"
+    while [[ -s "${fic_tmp}" ]] ; do
+        name=$(tail -n1 "${fic_tmp}")
+        rm -mcdor,
+        f "${path}/${name}"
+        echo "${name} a bien été suppr !"
+        sed -i '$d' "${fic_tmp}"
+    done
+}
+
+function check_save {
+    # On récupère tous les fichiers .sh du dossier
+    ls "${path}" | grep ".sh$" | while read script; do
+        # On définit le nom du fichier de sauvegarde attendu
+        nom_base=$(echo "${script}" | cut -d. -f1)
+        sauvegarde="${nom_base}.save"
+        if [[ -f "${path}/${sauvegarde}" ]]; then
+            echo -e "${Vert}${script}${NC}"
+        else
+            echo -e "${Rouge}${script}${NC}"
+        fi
+    done
+}jiman
