@@ -1,2 +1,2 @@
-# Appercu haproxy
+# Aperçu haproxy
 ![haproxy](haproxy.png)
